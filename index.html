@@ -1,244 +1,650 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Treino em Casa</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Ficha de Treino - FPWTech</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #111;
-      color: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
+    :root{
+      --bg:#07101a; --card:#071526; --card-2:#0b1220; --accent:#06b6d4;
+      --accent-2:#7dd3fc; --muted:#94a3b8; --glass:rgba(255,255,255,0.03);
+      --success-start:#16a34a; --success-end:#86efac;
+      --radius:12px;
+      --max-width:1080px;
     }
-    .container {
-      text-align: center;
+    /* Reset & base */
+    *{box-sizing:border-box;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif}
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,#07101a,#081827);color:#e6eef6;-webkit-font-smoothing:antialiased}
+    a{color:inherit}
+    button{font:inherit}
+    .container{max-width:var(--max-width);margin:20px auto;padding:18px;display:grid;gap:14px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{
+      width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));
+      display:flex;align-items:center;justify-content:center;color:#012;font-weight:700;box-shadow:0 8px 30px rgba(6,182,212,0.12)
     }
-    #exercise-name {
-      font-size: 2em;
-      margin-bottom: 1rem;
-    }
-    #counter {
-      font-size: 4em;
-      margin: 1rem 0;
-    }
-    #status {
-      font-size: 1.2em;
-      color: #0f0;
-    }
-    #start-button, #restart-button {
-      margin-top: 2rem;
-      padding: 1rem 2rem;
-      font-size: 1rem;
-      cursor: pointer;
-    }
-    #restart-button {
-      display: none;
-    }
-    #repetition-container, #mute-container {
-      margin-top: 1rem;
-      color: #fff;
-    }
-    #repetitions {
-      font-size: 1rem;
-      padding: 0.5rem;
-    }
-    #spotify-button {
-  display: inline-block;
-  margin-top: 1rem;
-  background-color: #1DB954;
-  color: white;
-  padding: 0.8rem 2rem;
-  font-size: 1rem;
-  font-weight: bold;
-  border: none;
-  border-radius: 25px;
-  text-decoration: none;
-  transition: background-color 0.3s;
-}
-#spotify-button:hover {
-  background-color: #1ed760;
-}
+    h1{font-size:18px;margin:0}
+    .sub{color:var(--muted);font-size:13px}
+    .controls{display:flex;gap:8px;align-items:center}
 
+    /* Layout */
+    .layout{display:grid;grid-template-columns:1fr 340px;gap:14px}
+    main{min-width:0}
+    aside{min-width:0}
+
+    /* Cards */
+    .card{background:linear-gradient(180deg,var(--card),var(--card-2));border-radius:var(--radius);padding:14px;margin-bottom:12px;box-shadow:0 10px 30px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.02)}
+    .section-title{font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+    .muted{color:var(--muted);font-size:13px}
+
+    /* Week menu */
+    .week-wrap{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .day-btn{
+      background:var(--glass);border:1px solid rgba(255,255,255,0.03);
+      padding:8px 12px;border-radius:10px;cursor:pointer;color:var(--muted);
+      display:inline-flex;align-items:center;gap:8px;transition:transform .15s ease,box-shadow .15s ease,background .15s ease;
+      position:relative;
+    }
+    .day-btn:hover{transform:translateY(-3px)}
+    .day-btn.active{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#012;box-shadow:0 10px 30px rgba(6,182,212,0.12)}
+    .day-name{font-weight:600}
+    .day-short{font-size:12px;color:rgba(1,2,3,0.6);padding:2px 6px;border-radius:6px;background:rgba(255,255,255,0.9);display:none}
+
+    /* Plan area */
+    #dayPlan{display:grid;gap:10px}
+    .meal{display:flex;justify-content:space-between;align-items:flex-start;padding:10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));margin-bottom:6px}
+    .meal .left{max-width:72%}
+    .muted-sm{color:var(--muted);font-size:13px}
+    .copy-btn{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:6px;border-radius:8px;color:var(--muted);cursor:pointer}
+    .copy-btn:hover{transform:translateY(-2px)}
+
+    /* Workout detail block */
+    .workout{
+      background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+      padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.02);
+      transition:transform .18s ease; 
+    }
+    .workout h3{margin:0 0 8px 0;font-size:15px}
+    .exercise{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px dashed rgba(255,255,255,0.02)}
+    .exercise:last-child{border-bottom:0}
+    .ex-left{font-weight:600}
+    .ex-right{color:var(--muted);font-size:13px}
+
+    /* Hydration */
+    .water{display:flex;align-items:center;gap:12px}
+    .bar{width:180px;height:12px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden}
+    .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));width:0%;transition:width 300ms ease}
+    .water-amount{font-weight:700}
+
+    /* Checklist */
+    .checkbox{display:flex;gap:8px;align-items:center}
+    .checks{display:grid;gap:8px}
+
+    /* Buttons */
+    .btn{background:var(--accent);border:none;color:#012;padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:600;box-shadow:0 8px 20px rgba(6,182,212,0.08)}
+    .small{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:6px;border-radius:8px;color:var(--muted);cursor:pointer}
+    .icon{width:18px;height:18px;display:inline-block;vertical-align:middle}
+
+    /* Notes */
+    textarea{width:100%;padding:10px;border-radius:10px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);color:inherit;min-height:84px}
+
+    /* Footer */
+    footer{margin-top:6px;color:var(--muted);font-size:13px;text-align:center;padding-bottom:12px}
+
+    /* Animations & responsive */
+    .fade-in{animation:fadeIn .28s ease both}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+    @media(max-width:1000px){.layout{grid-template-columns:1fr 320px}}
+    @media(max-width:880px){.layout{grid-template-columns:1fr}.container{padding:12px}}
+
+    /* subtle focus */
+    .day-btn:focus,.copy-btn:focus,.small:focus,.btn:focus{outline:2px solid rgba(255,255,255,0.03);outline-offset:2px}
+
+    /* icons inline style tweaks */
+    .svg-ic{width:18px;height:18px;display:inline-block;vertical-align:middle}
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Treino em Casa</h1>
-    <div id="exercise-name">Prepare-se...</div>
-    <div id="counter">--</div>
-    <div id="status"></div>
+  <div class="container" id="app">
+    <header>
+      <div class="brand">
+        <div class="logo">FPW</div>
+        <div>
+          <h1>Ficha de Treino — FPWTech</h1>
+          <div class="sub">Plano: 280 g proteína • Whey 2x • Creatina 5g/dia</div>
+        </div>
+      </div>
 
-    <div id="repetition-container">
-      <label for="repetitions">Repetições do treino:</label>
-      <select id="repetitions">
-        <option value="1" selected>1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-      </select>
+      <div class="controls" aria-hidden="false">
+        <button class="small" id="print" title="Imprimir (Ctrl+P)">
+          <!-- print icon -->
+          <svg class="svg-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9V2h12v7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span style="margin-left:6px">Imprimir</span>
+        </button>
+        <button class="small" id="export" title="Exportar JSON">
+          <svg class="svg-ic" viewBox="0 0 24 24"><path d="M12 3v12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M8 7l4-4 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="13" width="18" height="8" rx="2" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
+          <span style="margin-left:6px">Exportar JSON</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <main>
+        <div class="card fade-in">
+          <div class="section-title">
+            <svg class="svg-ic" viewBox="0 0 24 24"><path d="M3 7h18M3 12h18M7 17h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            Semana
+          </div>
+          <div class="week-wrap" id="week"></div>
+        </div>
+
+        <div class="card fade-in" aria-live="polite">
+          <div class="section-title">
+            <svg class="svg-ic" viewBox="0 0 24 24"><path d="M12 2v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M7 9h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M4 13h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            Plano do dia — <span id="dayName" class="day-name">Segunda</span>
+          </div>
+
+          <div id="dayPlan" class="fade-in" ></div>
+        </div>
+
+        <div class="card fade-in">
+          <div class="section-title">
+            <svg class="svg-ic" viewBox="0 0 24 24"><path d="M12 20v-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M16 9a4 4 0 1 1-8 0 4 4 0 0 1 8 0z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            Checklist Rápido (por dia)
+          </div>
+
+          <div class="checks" id="checks"></div>
+        </div>
+
+        <div class="card fade-in">
+          <div class="section-title">
+            <svg class="svg-ic" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M8 12l2.5 2.5L16 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Notas / Observações (por dia)
+          </div>
+          <textarea id="notes" placeholder="Anotações do treino, evolução, dor, carga..."></textarea>
+          <div style="margin-top:8px;text-align:right"><button class="btn" id="saveNotes">Salvar nota</button></div>
+        </div>
+      </main>
+
+      <aside>
+        <div class="card fade-in">
+          <div class="section-title">
+            <svg class="svg-ic" viewBox="0 0 24 24"><path d="M12 3v12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><rect x="4" y="15" width="16" height="6" rx="1" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
+            Hidratação
+          </div>
+
+          <div class="water" style="justify-content:space-between">
+            <div>
+              <div class="muted">Meta: <strong>3.0 L</strong></div>
+              <div class="bar" title="Progresso"><i id="waterFill"></i></div>
+            </div>
+
+            <div style="text-align:right">
+              <div id="waterAmount" class="water-amount">0 ml</div>
+              <div style="margin-top:8px;display:flex;gap:6px;justify-content:flex-end">
+                <button class="small" data-add="250" title="+250ml">+250</button>
+                <button class="small" data-add="500" title="+500ml">+500</button>
+                <button class="small" data-sub="100" title="-100ml">-100</button>
+                <button class="small" id="resetWater" title="Zerar">Zerar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card fade-in">
+          <div class="section-title">
+            <svg class="svg-ic" viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.6 4.2L20 22l-8-5-8 5 1.6-8.8L0 9h7z" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
+            Suplementos
+          </div>
+          <div class="muted">Whey: 1 scoop manhã • 1 scoop tarde</div>
+          <div class="muted" style="margin-top:6px">Creatina: 5 g com shake da manhã</div>
+          <div style="margin-top:8px;display:flex;gap:6px;justify-content:flex-end">
+            <button class="btn" id="markSupp">Marcar como tomado</button>
+          </div>
+        </div>
+
+        <div class="card fade-in">
+          <div class="section-title">
+            <svg class="svg-ic" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z" stroke="currentColor" stroke-width="1.2"/><path d="M8 12h8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            Resumo Calórico/Proteína (Estimado)
+          </div>
+          <div class="muted">Café (exemplo): 6 ovos + frango desfiado — ~70 g proteína</div>
+          <div class="muted">Shakes: 2x (whey+leite) — ~60 g proteína</div>
+          <div class="muted">Almoço: 180 g carne + arroz/feijão — ~45 g proteína</div>
+          <div class="muted">Jantar: 250–300 g frango — ~70–80 g proteína</div>
+          <div style="margin-top:8px"><strong>Total estimado: 275–300 g proteína</strong></div>
+        </div>
+      </aside>
     </div>
 
-    <div id="mute-container">
-      <label><input type="checkbox" id="mute-sounds" /> Silenciar sons</label>
-    </div>
-
-    <button id="start-button">Iniciar Treino</button>
-    <button id="restart-button">Recomeçar<br><br></button><br><br>
-<iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/playlist/3Z7fIVX3AWyZTrVOXZrPBQ?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe><br>(Nescessário fazer login)
-
+    <footer class="sub">Use este ficheiro localmente. Alterações são salvas no navegador (localStorage).</footer>
   </div>
 
-  <!-- Sons locais -->
-  <audio id="beep" src="beep.mp3" preload="auto"></audio>
-  <audio id="tick" src="tick.mp3" preload="auto"></audio>
-  <audio id="rep" src="rep.mp3" preload="auto"></audio>
-  <audio id="end" src="end.mp3" preload="auto"></audio>
-
-
-
-
-
-
   <script>
-    const exercises = [
-      { name: "Agachamento", reps: 20 },
-      { name: "Apoio", reps: 15 },
-      { name: "Afundo", reps: 12 },
-      { name: "Prancha", time: 30 },
-      { name: "Abdominal Bicicleta - Esquerda", reps: 20 },
-      { name: "Abdominal Bicicleta - Direita", reps: 20 },
-      { name: "Burpee", reps: 10 },
-      { name: "Escalador", time: 30 },
+    /* ---------------------------
+       Dados iniciais (treinos detalhados)
+       --------------------------- */
+    const defaultWeek = [
+      {
+        key:'mon', name:'Segunda', plan:[
+          { type:'workout', title:'Flexões em casa', details:[
+            {name:'Séries', value:'5 séries (no seu máximo controlado)'},
+            {name:'Foco', value:'Peito • Tríceps • Ombro'},
+            {name:'Observação', value:'Mantenha core firme e movimentos controlados. Descanse 60–90s entre séries.'}
+          ]},
+          { type:'meal', title:'Café da manhã', details:[
+            {name:'Receita', value:'Omelete proteico: 6 ovos batidos, 100 g frango desfiado, sal, pimenta. Cozinhe em fogo médio.'},
+            {name:'Proteína estimada', value:'~70 g'}
+          ]},
+          { type:'shake', title:'Shake manhã', details:[{name:'Conteúdo','value':'Whey + creatina (5g) + leite'}]},
+          { type:'meal', title:'Almoço', details:[{name:'Conteúdo','value':'180 g carne + arroz + feijão + salada'}]},
+          { type:'shake', title:'Shake tarde', details:[{name:'Conteúdo','value':'Whey'}]},
+          { type:'meal', title:'Jantar', details:[{name:'Conteúdo','value':'250 g frango + 2 ovos'}]}
+        ]
+      },
+      {
+        key:'tue', name:'Terça — Full Body A (musculação)', plan:[
+          { type:'section', title:'1. Pernas', details:[
+            {name:'Agachamento Smith', value:'4x10 — 30 kg'},
+            {name:'Leg Press Sumo', value:'3x12 — 100 kg'},
+            {name:'Extensora', value:'3x12 + 10s isometria — 35 kg'}
+          ]},
+          { type:'section', title:'2. Costas', details:[
+            {name:'Puxada alta aberta', value:'4x10 — 50 kg'},
+            {name:'Remada com triângulo', value:'3x12 — 35 kg'}
+          ]},
+          { type:'section', title:'3. Peito e Ombros', details:[
+            {name:'Supino reto', value:'3x12 — 13 kg'}
+          ]},
+          { type:'section', title:'4. Braços', details:[
+            {name:'Tríceps roldana', value:'4x12 — 35 kg'},
+            {name:'Rosca alternada rotação', value:'4x10 — 6 kg'},
+            {name:'Rosca Scott alternada', value:'3x12 — 6 kg'}
+          ]},
+          { type:'section', title:'5. Abdômen', details:[
+            {name:'Remador (abdômen)', value:'3x15'}
+          ]},
+          { type:'meal', title:'Café da manhã', details:[
+            {name:'Receita', value:'Panqueca proteica: 6 ovos + 60 g aveia + frango desfiado (100 g) — bater e cozinhar.'}
+          ]}
+        ]
+      },
+      {
+        key:'wed', name:'Quarta', plan:[
+          { type:'workout', title:'Flexões em casa', details:[
+            {name:'Séries', value:'Faça o máximo possível em 5 séries'},
+            {name:'Observação', value:'Fortalece resistência de membros superiores'}
+          ]},
+          { type:'cardio', title:'+ 1h de Kickboxing', details:[
+            {name:'Duração', value:'60 minutos — intensidade moderada a alta'}
+          ]},
+          { type:'meal', title:'Café da manhã', details:[
+            {name:'Receita', value:'Ovos mexidos: 6 ovos + frango desfiado salteado (100 g) + ervas.'}
+          ]}
+        ]
+      },
+      {
+        key:'thu', name:'Quinta — Full Body B (musculação)', plan:[
+          { type:'section', title:'1. Pernas', details:[
+            {name:'Agachamento Smith', value:'4x10'},
+            {name:'Panturrilha Smith', value:'3x15'},
+            {name:'Flexora', value:'3x12 + 10s isometria — 50 kg'},
+            {name:'Adutora', value:'3x12 — 35 kg'}
+          ]},
+          { type:'section', title:'2. Costas e Peito', details:[
+            {name:'Puxada alta', value:'3x10'},
+            {name:'Remada', value:'3x12'},
+            {name:'Supino reto', value:'3x12'}
+          ]},
+          { type:'section', title:'3. Braços', details:[
+            {name:'Tríceps roldana', value:'3x12'},
+            {name:'Rosca alternada', value:'3x12'}
+          ]},
+          { type:'section', title:'4. Abdômen', details:[
+            {name:'Abdôminais inclinados', value:'3x15'}
+          ]},
+          { type:'meal', title:'Café da manhã', details:[
+            {name:'Receita', value:'Crepioca proteica: goma de tapioca + 6 ovos + frango desfiado recheio.'}
+          ]}
+        ]
+      },
+      {
+        key:'fri', name:'Sexta', plan:[
+          { type:'workout', title:'Flexões em casa', details:[
+            {name:'Séries', value:'5 séries (máximo controlado)'},
+            {name:'Observação', value:'Mantenha amplitude completa'}
+          ]},
+          { type:'cardio', title:'+ 1h de Kickboxing', details:[
+            {name:'Duração', value:'60 minutos — foco em condicionamento'}
+          ]},
+          { type:'meal', title:'Café da manhã', details:[
+            {name:'Receita', value:'Ovos pochê: 6 ovos pochê + frango grelhado (120 g) + torrada integral (opcional)'}
+          ]}
+        ]
+      },
+      {
+        key:'sat', name:'Sábado (Descanso)', plan:[
+          { type:'rest', title:'Recuperação ativa', details:[{name:'Atividade', value:'10–15 min alongamento, caminhada leve'}] },
+          { type:'meal', title:'Café da manhã', details:[{name:'Receita', value:'Omelete frio: 6 ovos cozidos picados + frango desfiado + salada'}] }
+        ]
+      },
+      {
+        key:'sun', name:'Domingo (Descanso)', plan:[
+          { type:'rest', title:'Descanso', details:[{name:'Dica', value:'Sono 7–9h, preparar refeições da semana'}] },
+          { type:'meal', title:'Café da manhã', details:[{name:'Receita', value:'Panqueca simples com 6 ovos + frango desfiado'}] }
+        ]
+      }
     ];
 
-    const exerciseName = document.getElementById("exercise-name");
-    const counter = document.getElementById("counter");
-    const status = document.getElementById("status");
-    const startButton = document.getElementById("start-button");
-    const restartButton = document.getElementById("restart-button");
-    const repetitionsSelect = document.getElementById("repetitions");
-    const muteCheckbox = document.getElementById("mute-sounds");
+    /* ---------------------------
+       Estado (localStorage)
+       --------------------------- */
+    const STORAGE_KEY = 'fpw_state_v2';
+    let state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
 
-    const beep = document.getElementById("beep");
-    const tick = document.getElementById("tick");
-    const repSound = document.getElementById("rep");
-    const endSound = document.getElementById("end");
-
-    function playBeep() {
-      if (!muteCheckbox.checked) beep.cloneNode(true).play();
+    // init state defaults
+    if(!state.week) state.week = defaultWeek;
+    if(!state.activeDay) state.activeDay = localStorage.getItem('fpw_activeDay') || 'mon';
+    if(!state.water) {
+      // water per day in ml
+      state.water = {};
+      state.week.forEach(d => state.water[d.key] = 0);
+    } else {
+      // ensure keys exist (upgrade safe)
+      state.week.forEach(d => { if(state.water[d.key] === undefined) state.water[d.key] = 0; });
+    }
+    if(!state.checks) {
+      // checks per day
+      state.checks = {};
+      state.week.forEach(d => {
+        state.checks[d.key] = {
+          workout:false, shakes:false, creatina:false, water:false
+        };
+      });
+    } else {
+      state.week.forEach(d => {
+        if(!state.checks[d.key]) state.checks[d.key] = { workout:false, shakes:false, creatina:false, water:false };
+      });
+    }
+    if(!state.notes) {
+      state.notes = {};
+      state.week.forEach(d => state.notes[d.key] = '');
+    } else {
+      state.week.forEach(d => { if(state.notes[d.key] === undefined) state.notes[d.key] = ''; });
     }
 
-    function playRepSound() {
-      if (!muteCheckbox.checked) repSound.cloneNode(true).play();
+    // DOM refs
+    const weekEl = document.getElementById('week');
+    const dayPlanEl = document.getElementById('dayPlan');
+    const dayNameEl = document.getElementById('dayName');
+    const waterFill = document.getElementById('waterFill');
+    const waterAmount = document.getElementById('waterAmount');
+    const notesEl = document.getElementById('notes');
+    const checksEl = document.getElementById('checks');
+
+    /* ---------------------------
+       Render semana (botões)
+       --------------------------- */
+    function renderWeek(){
+      weekEl.innerHTML = '';
+      state.week.forEach(d => {
+        const btn = document.createElement('button');
+        btn.className = 'day-btn' + (d.key === state.activeDay ? ' active' : '');
+        btn.setAttribute('role','button');
+        btn.setAttribute('aria-pressed', d.key === state.activeDay ? 'true' : 'false');
+        btn.title = d.name;
+        btn.innerHTML = `
+          <span class="svg-ic" aria-hidden="true">
+            ${d.key === state.activeDay ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12l4 4L19 7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9" stroke-width="1.2"/></svg>'}
+          </span>
+          <span class="day-name">${d.name.split(' ')[0]}</span>
+        `;
+        btn.addEventListener('click', () => {
+          state.activeDay = d.key;
+          localStorage.setItem('fpw_activeDay', d.key);
+          persist();
+          renderAll();
+        });
+        weekEl.appendChild(btn);
+      });
     }
 
-    function playTick() {
-      if (!muteCheckbox.checked) tick.cloneNode(true).play();
-    }
+    /* ---------------------------
+       Render dia selecionado
+       --------------------------- */
+    function renderDay(){
+      const day = state.week.find(d => d.key === state.activeDay);
+      if(!day) return;
+      dayNameEl.textContent = day.name;
+      dayPlanEl.innerHTML = '';
 
-    function playEndSound() {
-      if (!muteCheckbox.checked) endSound.cloneNode(true).play();
-    }
+      // loop items
+      day.plan.forEach(item => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'meal';
 
-    function speakNumber(n) {
-      if (muteCheckbox.checked) return;
-      const msg = new SpeechSynthesisUtterance(n.toString());
-      msg.lang = 'pt-BR';
-      msg.pitch = 0.8;
-      msg.rate = 1.3;
-      msg.volume = 10;
+        const left = document.createElement('div');
+        left.className = 'left';
+        const right = document.createElement('div');
 
-      const voices = speechSynthesis.getVoices();
-      const voice = voices.find(v => v.name === 'Google português do Brasil');
-      if (voice) msg.voice = voice;
+        // Title
+        const title = document.createElement('div');
+        title.style.marginBottom = '6px';
+        title.innerHTML = `<strong>${item.title}</strong> ${item.type ? '<span class="muted-sm" style="margin-left:8px">('+item.type+')' : ''}</span>`;
+        left.appendChild(title);
 
-      speechSynthesis.speak(msg);
-    }
+        // Details block
+        const block = document.createElement('div');
+        block.className = 'workout';
+        // If details is an array of objects {name,value}
+        item.details.forEach(d => {
+          const ex = document.createElement('div');
+          ex.className = 'exercise';
+          ex.innerHTML = `<div class="ex-left">${escapeHtml(d.name)}</div><div class="ex-right">${escapeHtml(d.value||d)}</div>`;
+          block.appendChild(ex);
+        });
+        left.appendChild(block);
 
-    function delay(ms) {
-      return new Promise(res => setTimeout(res, ms));
-    }
+        // Right actions (copy / optional)
+        right.innerHTML = `<button class="copy-btn" title="Copiar conteúdo">Copiar</button>`;
+        wrapper.appendChild(left);
+        wrapper.appendChild(right);
+        dayPlanEl.appendChild(wrapper);
 
-    async function countdown(seconds) {
-      status.textContent = "Preparar...";
-      for (let i = seconds; i > 0; i--) {
-        counter.textContent = i;
-        playBeep();
-        await delay(1000);
+        // bind copy safely
+        const btn = right.querySelector('.copy-btn');
+        btn.addEventListener('click', () => {
+          const text = `${item.title}\n` + item.details.map(d => `${d.name}: ${d.value||d}`).join('\n');
+          copyText(text);
+        });
+      });
+
+      // recipe quick card (first meal that's meal type)
+      const recipe = day.plan.find(p => p.type === 'meal' && p.title.toLowerCase().includes('café'));
+      if(recipe){
+        const card = document.createElement('div');
+        card.className = 'card fade-in';
+        card.style.marginTop='8px';
+        card.innerHTML = `<div class="section-title">Receita do café (6 ovos + frango)</div><div class="muted-sm">${escapeHtml(recipe.details[0].value)}</div>`;
+        dayPlanEl.appendChild(card);
       }
     }
 
-    async function pause(seconds) {
-      status.textContent = "Pausa...";
-      exerciseName.textContent = "Respire";
-      for (let i = seconds; i > 0; i--) {
-        counter.textContent = i;
-        playBeep();
-        playTick();
-        await delay(1000);
-      }
+    /* ---------------------------
+       Copy helper
+       --------------------------- */
+    function copyText(t){
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(t).then(()=> alert('Copiado!')).catch(()=> fallbackCopy(t));
+      } else fallbackCopy(t);
+    }
+    function fallbackCopy(text){
+      const ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      try{ document.execCommand('copy'); alert('Copiado!') }catch(e){ alert('Não foi possível copiar') }
+      ta.remove();
     }
 
-    async function startExercise(ex) {
-      exerciseName.textContent = ex.name;
-      status.textContent = "Executando...";
-
-      if (ex.reps) {
-        for (let i = 1; i <= ex.reps; i++) {
-          counter.textContent = i;
-          playRepSound();
-          speakNumber(i);
-          await delay(2000);
-        }
-      } else if (ex.time) {
-        for (let i = ex.time; i > 0; i--) {
-          counter.textContent = i;
-          playTick();
-          await delay(1000);
-        }
-      }
-
-      playEndSound();
+    /* ---------------------------
+       Hydration (por dia)
+       --------------------------- */
+    function renderWater(){
+      const ml = state.water[state.activeDay] || 0;
+      waterAmount.textContent = ml + ' ml';
+      const pct = Math.min(100, Math.round((ml/3000)*100));
+      waterFill.style.width = pct + '%';
+      persist();
     }
 
-    async function startRoutine() {
-      startButton.style.display = "none";
-      restartButton.style.display = "none";
-      const repetitions = parseInt(repetitionsSelect.value);
+    // bind hydration buttons
+    document.querySelectorAll('[data-add]').forEach(btn => btn.addEventListener('click', (e) => {
+      const add = Number(btn.getAttribute('data-add') || 0);
+      state.water[state.activeDay] = (state.water[state.activeDay] || 0) + add;
+      renderWater();
+    }));
+    document.querySelectorAll('[data-sub]').forEach(btn => btn.addEventListener('click', (e) => {
+      const sub = Number(btn.getAttribute('data-sub') || 0);
+      state.water[state.activeDay] = Math.max(0, (state.water[state.activeDay] || 0) - sub);
+      renderWater();
+    }));
+    document.getElementById('resetWater').addEventListener('click', ()=> {
+      state.water[state.activeDay] = 0;
+      renderWater();
+    });
 
-      for (let round = 1; round <= repetitions; round++) {
-        await countdown(3);
+    /* ---------------------------
+       Checklist por dia
+       --------------------------- */
+    function renderChecks(){
+      checksEl.innerHTML = '';
+      const c = state.checks[state.activeDay];
+      const items = [
+        {id:'workout', label:'Treino feito'},
+        {id:'shakes', label:'2 Whey (manhã/tarde)'},
+        {id:'creatina', label:'Creatina (5 g)'},
+        {id:'water', label:'Hidratação meta' }
+      ];
+      items.forEach(it => {
+        const row = document.createElement('label');
+        row.className = 'checkbox';
+        row.style.justifyContent = 'space-between';
+        row.style.padding = '6px 8px';
+        row.style.borderRadius = '8px';
+        row.style.background = 'transparent';
+        row.style.display = 'flex';
+        row.style.alignItems = 'center';
+        row.style.gap = '8px';
 
-        for (let i = 0; i < exercises.length; i++) {
-          await startExercise(exercises[i]);
-          if (i < exercises.length - 1) {
-            exerciseName.textContent = `Próximo: ${exercises[i + 1].name}`;
-            await pause(10);
+        const left = document.createElement('div');
+        left.textContent = it.label;
+        left.className = 'muted-sm';
+
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.checked = !!c[it.id];
+        input.id = `chk_${state.activeDay}_${it.id}`;
+
+        input.addEventListener('change', () => {
+          state.checks[state.activeDay][it.id] = input.checked;
+          // If user marks water checked, set water check only if reached 3000 ml
+          if(it.id === 'water' && input.checked){
+            // optional: verify hydration reached meta
+            // no enforced behavior here
           }
-        }
+          persist();
+        });
 
-        if (round < repetitions) {
-          exerciseName.textContent = `Próxima rodada: ${round + 1}`;
-          status.textContent = "Prepare-se para repetir o treino...";
-          await pause(15);
-        }
-      }
-
-      exerciseName.textContent = "Fim do treino!";
-      counter.textContent = "✔";
-      status.textContent = "Parabéns!";
-      playEndSound();
-      restartButton.style.display = "inline-block";
+        row.appendChild(left);
+        row.appendChild(input);
+        checksEl.appendChild(row);
+      });
     }
 
-    startButton.addEventListener("click", startRoutine);
-    restartButton.addEventListener("click", startRoutine);
+    /* ---------------------------
+       Notes per day
+       --------------------------- */
+    function renderNotes(){
+      notesEl.value = state.notes[state.activeDay] || '';
+    }
+    document.getElementById('saveNotes').addEventListener('click', () => {
+      state.notes[state.activeDay] = notesEl.value;
+      persist();
+      alert('Nota salva para ' + state.activeDay);
+    });
+
+    /* ---------------------------
+       Mark supplements
+       --------------------------- */
+    document.getElementById('markSupp').addEventListener('click', ()=>{
+      state.checks[state.activeDay].shakes = true;
+      state.checks[state.activeDay].creatina = true;
+      persist();
+      renderChecks();
+      alert('Whey e creatina marcados como tomados (dia atual).');
+    });
+
+    /* ---------------------------
+       Export & print
+       --------------------------- */
+    document.getElementById('print').addEventListener('click', ()=> window.print());
+    document.getElementById('export').addEventListener('click', ()=>{
+      const data = JSON.stringify(state, null, 2);
+      const blob = new Blob([data],{type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'ficha_fpw.json'; a.click(); URL.revokeObjectURL(url);
+    });
+
+    /* ---------------------------
+       Utility & persist
+       --------------------------- */
+    function persist(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function renderAll(){
+      renderWeek();
+      renderDay();
+      renderWater();
+      renderChecks();
+      renderNotes();
+    }
+
+    // escape html for safety in DOM creation
+    function escapeHtml(str){
+      if(!str && str !== 0) return '';
+      return String(str).replace(/[&<>"'`]/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;', '`':'&#x60;'})[m]; });
+    }
+
+    /* ---------------------------
+       Init & events
+       --------------------------- */
+    // initialize UI
+    renderAll();
+
+    // save on unload
+    window.addEventListener('beforeunload', ()=> persist());
+
+    // small keyboard shortcuts for convenience
+    window.addEventListener('keydown', (e) => {
+      if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's'){ // ctrl/cmd + s save notes
+        e.preventDefault();
+        state.notes[state.activeDay] = notesEl.value;
+        persist();
+        alert('Nota salva (Ctrl+S)');
+      }
+    });
+
+    // ensure water rendered when active day changes from other tabs (storage event)
+    window.addEventListener('storage', (e) => {
+      if(e.key === STORAGE_KEY){
+        state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        // ensure structure
+        if(!state.week) state.week = defaultWeek;
+        renderAll();
+      }
+    });
   </script>
 </body>
 </html>
